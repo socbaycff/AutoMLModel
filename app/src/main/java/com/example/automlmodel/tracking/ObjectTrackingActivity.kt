@@ -35,12 +35,10 @@ class ObjectTrackingActivity : AppCompatActivity() {
 
         val options = FirebaseVisionObjectDetectorOptions.Builder()
             .setDetectorMode(FirebaseVisionObjectDetectorOptions.STREAM_MODE)
-            .enableClassification()
             .enableMultipleObjects()
             .build()
         val options2 = FirebaseVisionObjectDetectorOptions.Builder()
             .setDetectorMode(FirebaseVisionObjectDetectorOptions.STREAM_MODE)
-            .enableClassification()
             .build()
         objectDetector = FirebaseVision.getInstance().getOnDeviceObjectDetector(options)
 
@@ -92,7 +90,6 @@ class ObjectTrackingActivity : AppCompatActivity() {
                     val size = result?.size
                     if (size != 0) {
                         val boundList = arrayListOf<Rect>()
-
                         result?.forEach {
                             boundList.add(it.boundingBox)
                         }

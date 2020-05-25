@@ -7,8 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.example.automlmodel.labelImage.LabelerActivity
-import com.example.automlmodel.labelImage.PermissionDialogFragment
 import com.example.automlmodel.tracking.ObjectTrackingActivity
 
 class MainActivity : AppCompatActivity() {
@@ -22,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         checkPermissions()
     }
 
-    // kiem tra permission (= checkselfPermission(string))
+    // kiểm tra permission (= checkselfPermission(string))
     private fun checkPermissions() {
 
 
@@ -55,7 +53,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // Xu ly sau khi user chon permission
+    // Xử lý sau khi user chọn quyền
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,

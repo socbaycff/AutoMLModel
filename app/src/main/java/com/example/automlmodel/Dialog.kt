@@ -1,4 +1,4 @@
-package com.example.automlmodel.labelImage
+package com.example.automlmodel
 
 
 import android.app.Dialog

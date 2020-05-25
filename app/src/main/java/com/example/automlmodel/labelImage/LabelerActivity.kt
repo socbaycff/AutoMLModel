@@ -17,7 +17,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler
 import com.google.firebase.ml.vision.label.FirebaseVisionOnDeviceAutoMLImageLabelerOptions
 
-import kotlinx.android.synthetic.main.activity_camera.*
+import kotlinx.android.synthetic.main.activity_labelImage.*
 import java.util.concurrent.Executors
 
 
@@ -25,18 +25,20 @@ class LabelerActivity : AppCompatActivity() {
     lateinit var labeler: FirebaseVisionImageLabeler
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_camera)
+        setContentView(R.layout.activity_labelImage)
 
-        // lay automl ra
+        // lấy model tu train ra từ thư mục asset
         val localModel =
             FirebaseAutoMLLocalModel.Builder().setAssetFilePath("models/manifest.json").build()
-        // tao option su dung automl model
+        // tạo options sử dụng model trên
         val options = FirebaseVisionOnDeviceAutoMLImageLabelerOptions.Builder(localModel)
             .setConfidenceThreshold(0.5f)
             .build()
 
-        // tao bo dat ten anh
-         labeler = FirebaseVision.getInstance().getOnDeviceAutoMLImageLabeler(options)
+        // tạo bộ đặt tên ảnh
+        //  labeler = FirebaseVision.getInstance().getOnDeviceImageLabeler()  //trường hợp sử dụng model của google
+        labeler = FirebaseVision.getInstance()
+            .getOnDeviceAutoMLImageLabeler(options) // sư dụng option có model tự train
 
         initCamera()
 
@@ -52,11 +54,14 @@ class LabelerActivity : AppCompatActivity() {
         cameraProvider.addListener(Runnable {
             val get = cameraProvider.get()
             bindCamera(get)
-        },ContextCompat.getMainExecutor(this))
+        }, ContextCompat.getMainExecutor(this))
     }
 
 
-
+    /**
+     * Hàm này biết lý thuyết cameraX mới hiểu code
+     *
+     */
     @SuppressLint("RestrictedApi", "UnsafeExperimentalUsageError")
     private fun bindCamera(get: ProcessCameraProvider) {
 //        val displayMetrics = DisplayMetrics().also { viewFinder.display.getRealMetrics(it) }
@@ -64,61 +69,65 @@ class LabelerActivity : AppCompatActivity() {
 //        val aspectRatio = Rational(displayMetrics.widthPixels, displayMetrics.heightPixels)
 //        val rotation = viewFinder.display.rotation
 
-        // khoi tao preview
+        // khởi tạo preview
         val preview = Preview.Builder().build()
-        // chon camera sau
-        val cameraSelector : CameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+        // bộ chọn camera
+        val cameraSelector: CameraSelector = CameraSelector.Builder()
+            .requireLensFacing(CameraSelector.LENS_FACING_BACK) // su dung camera sau
             .build()
 
-        // khoi tao analysis
+        // khởi tạo analysis
         val imageAnalysis = ImageAnalysis.Builder()
             .setCameraSelector(cameraSelector)
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .build()
 
-        // set bo phan tich anh
-        imageAnalysis.setAnalyzer(Executors.newSingleThreadExecutor(),ImageAnalysis.Analyzer { image ->
-            val mediaImage: Image = image.getImage()!!
-            val rotation1 = degreesToFirebaseRotation(image.imageInfo.rotationDegrees)
-            val visionImage = FirebaseVisionImage.fromMediaImage(mediaImage, rotation1) // chuyen doi image -> firebasevisionimage
+        // set bộ phân tích ảnh
+        imageAnalysis.setAnalyzer(
+            Executors.newSingleThreadExecutor(),
+            ImageAnalysis.Analyzer { image ->
+                val mediaImage: Image = image.getImage()!!
+                val rotation1 = degreesToFirebaseRotation(image.imageInfo.rotationDegrees)
+                val visionImage = FirebaseVisionImage.fromMediaImage(
+                    mediaImage,
+                    rotation1
+                ) // chuyen doi image -> firebasevisionimage
 
 
-            // su dung mlkit xu ly va lay ket qua qua completeListener
-            labeler.processImage(visionImage).addOnCompleteListener {
-                val result = it.result
-                val size = it.result?.size ?: 0
-                if (size != 0) {
-                    result?.get(0)?.let {
-                        var tv = ""
-                        // chuyen ve tieng viet
-                        when (it.text) {
-                            "circle" -> tv = "hình tròn"
-                            "triangle" -> tv = "tam giác"
-                            "rectangle" -> tv = "hình chữ nhật"
+                // sử dụng mlkit để phân tích và lấy kết quả từ CompleteListener (k phải sucessListener)
+                labeler.processImage(visionImage).addOnCompleteListener {
+                    val result = it.result
+                    val size = it.result?.size ?: 0
+                    if (size != 0) {
+                        result?.get(0)?.let {
+                            var tv = ""
+                            // chuyen ve tieng viet
+                            when (it.text) {
+                                "circle" -> tv = "hình tròn"
+                                "triangle" -> tv = "tam giác"
+                                "rectangle" -> tv = "hình chữ nhật"
+                            }
+
+                            textView.setText(tv)
+                            Log.i("value----------", it.text)
                         }
-
-                        textView.setText(tv)
-                        Log.i("value----------",  it.text)
+                    } else {
+                        textView.setText("Không nhận ra")
                     }
-                } else {
-                    textView.setText("Không nhận ra")
+
+                    image.close() // đóng proxy phân tích: quan trọng
                 }
 
-                image.close() // dong proxy phan tich: Quan trong
-            }
+            })
 
-        })
-
-        // bind tat preview, analysis vao lifecycle
+        // bind tất cả preview, analysis vào lifecycle
         val camera =
-            CameraX.bindToLifecycle(this as LifecycleOwner, cameraSelector,imageAnalysis, preview)
-        // lien ket preview voi previewView (set bo cung cap surface cua preview la bo cung cap provider tao tu previewview)
+            CameraX.bindToLifecycle(this as LifecycleOwner, cameraSelector, imageAnalysis, preview)
+        // liên kết preview với previewView (set bộ cung cap surface của preview là bộ cung cap provider tạo từ previewview)
         preview.setSurfaceProvider(viewFinder.createSurfaceProvider(camera.cameraInfo))
-
-
     }
-    // xu ly xoay man hinh
+
+    // xử lý xoay màn hình
     private fun degreesToFirebaseRotation(degrees: Int): Int {
         return when (degrees) {
             0 -> FirebaseVisionImageMetadata.ROTATION_0
