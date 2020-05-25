@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.example.automlmodel.labelImage.LabelerActivity
 import com.example.automlmodel.tracking.ObjectTrackingActivity
 
 class MainActivity : AppCompatActivity() {
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                 ContextCompat.checkSelfPermission(this,it) == PackageManager.PERMISSION_GRANTED -> startActivity(
                     (Intent(
                         this,
-                        ObjectTrackingActivity::class.java
+                        LabelerActivity::class.java
                     ))
                 )
                 shouldShowRequestPermissionRationale(it) -> {
@@ -65,9 +66,13 @@ class MainActivity : AppCompatActivity() {
                 it == PackageManager.PERMISSION_GRANTED
             }
             if (all) {
-                startActivity((Intent(this, ObjectTrackingActivity::class.java)))
+                startActivity((Intent(this, LabelerActivity::class.java)))
             } else {
-                // bao error
+                Toast.makeText(
+                    applicationContext,
+                    "Bạn sẽ không thể dùng chức năng camera",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 

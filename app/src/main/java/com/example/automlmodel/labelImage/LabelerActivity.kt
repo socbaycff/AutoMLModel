@@ -17,7 +17,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler
 import com.google.firebase.ml.vision.label.FirebaseVisionOnDeviceAutoMLImageLabelerOptions
 
-import kotlinx.android.synthetic.main.activity_labelImage.*
+import kotlinx.android.synthetic.main.activity_label_image.*
 import java.util.concurrent.Executors
 
 
@@ -25,7 +25,7 @@ class LabelerActivity : AppCompatActivity() {
     lateinit var labeler: FirebaseVisionImageLabeler
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_labelImage)
+        setContentView(R.layout.activity_label_image)
 
         // lấy model tu train ra từ thư mục asset
         val localModel =
