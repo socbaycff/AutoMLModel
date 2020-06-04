@@ -7,8 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.example.automlmodel.labelImage.LabelerActivity
-import com.example.automlmodel.tracking.ObjectTrackingActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,14 +21,12 @@ class MainActivity : AppCompatActivity() {
 
     // kiểm tra permission (= checkselfPermission(string))
     private fun checkPermissions() {
-
-
         MAIN_PERMISSION.forEach {
             when {
                 ContextCompat.checkSelfPermission(this,it) == PackageManager.PERMISSION_GRANTED -> startActivity(
                     (Intent(
                         this,
-                        LabelerActivity::class.java
+                        Main2Activity::class.java
                     ))
                 )
                 shouldShowRequestPermissionRationale(it) -> {
@@ -66,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                 it == PackageManager.PERMISSION_GRANTED
             }
             if (all) {
-                startActivity((Intent(this, LabelerActivity::class.java)))
+                startActivity((Intent(this, Main2Activity::class.java)))
             } else {
                 Toast.makeText(
                     applicationContext,

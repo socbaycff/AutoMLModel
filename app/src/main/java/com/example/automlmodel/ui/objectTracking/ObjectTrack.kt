@@ -1,61 +1,66 @@
-package com.example.automlmodel.tracking
+package com.example.automlmodel.ui.objectTracking
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.media.Image
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.util.Size
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import com.example.automlmodel.R
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
-import com.google.firebase.ml.vision.objects.FirebaseVisionObject
 import com.google.firebase.ml.vision.objects.FirebaseVisionObjectDetector
 import com.google.firebase.ml.vision.objects.FirebaseVisionObjectDetectorOptions
-import kotlinx.android.synthetic.main.activity_object_tracking.*
+import kotlinx.android.synthetic.main.fragment_tracking_object.*
+import kotlinx.android.synthetic.main.fragment_tracking_object.view.*
 import java.util.concurrent.Executors
 
-class ObjectTrackingActivity : AppCompatActivity() {
+class ObjectTrack : Fragment() {
     lateinit var objectDetector: FirebaseVisionObjectDetector
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_object_tracking)
-        constrainLayout.post {
-            trackingView.updateViewSize(Size(constrainLayout.width, constrainLayout.height))
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
 
+        val root = inflater.inflate(R.layout.fragment_tracking_object, container, false)
+        root.post {
+            root.trackingView.updateViewSize(Size(root.width, root.height))
+        }
         val options = FirebaseVisionObjectDetectorOptions.Builder()
             .setDetectorMode(FirebaseVisionObjectDetectorOptions.STREAM_MODE)
             .enableMultipleObjects()
             .build()
-        val options2 = FirebaseVisionObjectDetectorOptions.Builder()
-            .setDetectorMode(FirebaseVisionObjectDetectorOptions.STREAM_MODE)
-            .build()
+
         objectDetector = FirebaseVision.getInstance().getOnDeviceObjectDetector(options)
 
 
         initCamera()
+
+        return root
     }
 
     // setup cemra
     private fun initCamera() {
         // cac thu tuc setup camera
         // b1: tao listenablefuture<ProcessCameraProvider>
-        val cameraProvider = ProcessCameraProvider.getInstance(this)
+        val cameraProvider = ProcessCameraProvider.getInstance(context!!)
         //b2: bind camera sau khi chuan bi xong camera provider
         cameraProvider.addListener(Runnable {
             val get = cameraProvider.get()
             bindCamera(get)
-        }, ContextCompat.getMainExecutor(this))
+        }, ContextCompat.getMainExecutor(context))
     }
 
     @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
@@ -93,7 +98,10 @@ class ObjectTrackingActivity : AppCompatActivity() {
                         result?.forEach {
                             boundList.add(it.boundingBox)
                         }
-                        trackingView.updateBound(boundList)
+                        if (trackingView != null) {
+                            trackingView.updateBound(boundList)
+                        }
+
                     }
                     image.close() // dong luong
                 }

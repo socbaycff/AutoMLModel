@@ -37,23 +37,23 @@ class TrackingView : View {
 
     fun calculateSize(rect: Rect): RectF {
         // tinh scale giua anh va view
-     //   val scaleX = viewSize.width / 480.0
-        val scaleY = viewSize.height / 640.0
-    //    val scale = Math.max(scaleX, scaleY) // chon scale max
-        val scaleF = scaleY.toFloat()
+        val scaleX = viewSize.width / 480f
+        val scaleY = viewSize.height / 640f
+    //  val scale = Math.max(scaleX, scaleY) // chon scale max
+
         // val scaledSize = Size(Math.ceil(rect.width() * scale).toInt(), Math.ceil(rect.height() * scale).toInt()) // tinh do dai chinh xac
 
 
         // Calculate offset (we need to center the overlay on the target)
-        val offsetX = (rect.width() * scaleF - viewSize.width) / 2f
+        val offsetX = (rect.width() * scaleX - viewSize.width) / 2f
         //   val offsetY = (scaledSize.height - viewSize.height) / 2f
 
         // Map bounding box
         val mappedBoundingBox = RectF().apply {
-            left = rect.right * scaleF + offsetX
-            top = rect.top * scaleF
-            right = rect.left * scaleF + offsetX
-            bottom = rect.bottom * scaleF
+            left = rect.right * scaleX
+            top = rect.top * scaleY
+            right = rect.left * scaleX
+            bottom = rect.bottom * scaleY
         }
 
         return mappedBoundingBox

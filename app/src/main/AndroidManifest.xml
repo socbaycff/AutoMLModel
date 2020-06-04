@@ -8,10 +8,9 @@
         android:name="android.hardware.camera"
         android:required="true" />
 
-
     <meta-data
         android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-        android:value="face" />
+        android:value="ocr,label" />
 
     <application
         android:allowBackup="true"
@@ -20,8 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".tracking.ObjectTrackingActivity"></activity>
-        <activity android:name=".labelImage.LabelerActivity" />
+        <activity
+            android:name=".Main2Activity"
+            android:label="@string/title_activity_main2"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
